@@ -1,42 +1,49 @@
 ﻿using MicroSass.Domain.Entities;
 using MicroSass.Domain.Interfaces;
+using MicroSass.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace MicroSass.Infrastructure.Repositories
 {
     public class SubscriptionRepository : IRepository<Subscription>
     {
-        private readonly List<Subscription> _subscriptions = new List<Subscription>();
+        private readonly AppDbContext _context;
+
+        public SubscriptionRepository(AppDbContext context)
+        {
+            _context = context;
+        }
 
         public void Add(Subscription entity)
         {
-             _subscriptions.Add(entity);
+            _context.Subscriptions.Add(entity);
+            _context.SaveChanges();
         }
 
         public void Delete(Guid id)
         {
-            var subscription = _subscriptions.Find(s => s.Id == id);
-            if (subscription != null) _subscriptions.Remove(subscription);
+            var subscription = _context.Subscriptions.Find(id);
+            if (subscription != null)
+            {
+                _context.Subscriptions.Remove(subscription);
+                _context.SaveChanges();
+            }
         }
 
         public IEnumerable<Subscription> GetAll()
         {
-            return _subscriptions;
+            return _context.Subscriptions.Include(s => s.UserId).ToList();
         }
 
         public Subscription GetById(Guid id)
         {
-            var result = _subscriptions.Find(s => s.Id == id);
-
-            if (result != null)
-                return result;
-
-            return null;
+            return _context.Subscriptions.Find(id);
         }
 
         public void Update(Subscription entity)
         {
-            var index = _subscriptions.FindIndex(s => s.Id == entity.Id);
-            if (index != -1) _subscriptions[index] = entity;
+            _context.Subscriptions.Update(entity);
+            _context.SaveChanges();
         }
     }
 }

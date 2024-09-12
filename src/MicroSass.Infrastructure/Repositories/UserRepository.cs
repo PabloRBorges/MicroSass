@@ -1,37 +1,48 @@
 ﻿using MicroSass.Domain.Entities;
 using MicroSass.Domain.Interfaces;
+using MicroSass.Infrastructure.Data;
 
 namespace MicroSass.Infrastructure.Repositories
 {
     public class UserRepository : IRepository<User>
     {
-        private readonly List<User> _users = new List<User>();
+        private readonly AppDbContext _context;
+
+        public UserRepository(AppDbContext context)
+        {
+            _context = context;
+        }
 
         public void Add(User entity)
         {
-            _users.Add(entity);
+            _context.Users.Add(entity);
+            _context.SaveChanges();
         }
 
         public void Delete(Guid id)
         {
-            var user = _users.Find(u => u.Id == id);
-            if (user != null) _users.Remove(user);
+            var user = _context.Users.Find(id);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+            }
         }
 
         public IEnumerable<User> GetAll()
         {
-            return _users;
+            return _context.Users.ToList();
         }
 
         public User GetById(Guid id)
         {
-            return _users.Find(u => u.Id == id);
+            return _context.Users.Find(id);
         }
 
         public void Update(User entity)
         {
-            var index = _users.FindIndex(u => u.Id == entity.Id);
-            if (index != -1) _users[index] = entity;
+            _context.Users.Update(entity);
+            _context.SaveChanges();
         }
     }
 }
