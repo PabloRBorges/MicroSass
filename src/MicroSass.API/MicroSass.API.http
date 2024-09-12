@@ -1,0 +1,6 @@
+@MicroSass.API_HostAddress = http://localhost:5127
+
+GET {{MicroSass.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
